@@ -1,0 +1,160 @@
+<form script="multiselect_force_default.js">
+  <label>Arrests</label>
+  <search id="base">
+    <query>| inputlookup arrests.csv</query>
+    <earliest>0</earliest>
+    <latest>now</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="timechart">
+      <label></label>
+      <default>
+        <earliest>0</earliest>
+        <latest></latest>
+      </default>
+    </input>
+    <input type="multiselect" token="age_group_string" searchWhenChanged="true">
+      <label>Age group</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <search base="base">
+        <query>search _time&gt;=$timechart.earliest|s$ AND _time&lt;=$timechart.latest|s$ AND $gender_string$ AND $race_string$ AND $county_string$ | stats count by AGE_GROUP</query>
+      </search>
+      <fieldForLabel>AGE_GROUP</fieldForLabel>
+      <fieldForValue>AGE_GROUP</fieldForValue>
+      <valuePrefix>AGE_GROUP="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+    </input>
+    <input type="multiselect" token="gender_string" searchWhenChanged="true">
+      <label>Gender</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <search base="base">
+        <query>search _time&gt;=$timechart.earliest|s$ AND _time&lt;=$timechart.latest|s$ AND $age_group_string$ AND $race_string$ AND $county_string$ | stats count by GENDER</query>
+      </search>
+      <fieldForLabel>GENDER</fieldForLabel>
+      <fieldForValue>GENDER</fieldForValue>
+      <valuePrefix>GENDER="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+    </input>
+    <input type="multiselect" token="race_string" searchWhenChanged="true">
+      <label>Race</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <search base="base">
+        <query>search _time&gt;=$timechart.earliest|s$ AND _time&lt;=$timechart.latest|s$ AND $age_group_string$ AND $gender_string$ AND $county_string$ | stats count by RACE</query>
+      </search>
+      <fieldForLabel>RACE</fieldForLabel>
+      <fieldForValue>RACE</fieldForValue>
+      <valuePrefix>RACE="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+    </input>
+    <input type="multiselect" token="county_string" searchWhenChanged="true">
+      <label>County</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <search base="base">
+        <query>search _time&gt;=$timechart.earliest|s$ AND _time&lt;=$timechart.latest|s$ AND $age_group_string$ AND $gender_string$ AND $race_string$ | stats count by COUNTY</query>
+      </search>
+      <fieldForLabel>COUNTY</fieldForLabel>
+      <fieldForValue>COUNTY</fieldForValue>
+      <valuePrefix>COUNTY="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR </delimiter>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <input type="dropdown" token="category_timechart" searchWhenChanged="true">
+        <label>Category</label>
+        <choice value="AGE_GROUP">Age group</choice>
+        <choice value="GENDER">Gender</choice>
+        <choice value="RACE">Race</choice>
+        <choice value="COUNTY">County</choice>
+        <default>AGE_GROUP</default>
+      </input>
+      <chart>
+        <title>Make a selection to set the time range (ie from 2011 to 2013)</title>
+        <search base="base">
+          <query>search $age_group_string$ AND $gender_string$ AND $race_string$ AND $county_string$ | timechart span=1y sum(total) by $category_timechart$</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+        <selection>
+          <set token="form.timechart.earliest">$start$</set>
+          <set token="form.timechart.latest">$end$</set>
+        </selection>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <map>
+        <title>Normalized crime volume by population</title>
+        <search base="base">
+          <query>search _time&gt;=$timechart.earliest|s$ AND _time&lt;=$timechart.latest|s$ AND $age_group_string$ AND $gender_string$ AND $race_string$ AND $county_string$ | eval featureId=replace(COUNTY, " County", "") | stats sum(total) as total by featureId | lookup california_counties_population.csv county as featureId | eval count=total/population*1000000 | table featureId count | geom california_counties</query>
+        </search>
+        <option name="mapping.choroplethLayer.colorBins">9</option>
+        <option name="mapping.choroplethLayer.colorMode">sequential</option>
+        <option name="mapping.choroplethLayer.maximumColor">0xAF1D12</option>
+        <option name="mapping.choroplethLayer.minimumColor">0x2F25BA</option>
+        <option name="mapping.choroplethLayer.neutralPoint">0</option>
+        <option name="mapping.choroplethLayer.shapeOpacity">0.75</option>
+        <option name="mapping.choroplethLayer.showBorder">1</option>
+        <option name="mapping.data.maxClusters">100</option>
+        <option name="mapping.drilldown">all</option>
+        <option name="mapping.map.center">(37.41,-120.76)</option>
+        <option name="mapping.map.panning">true</option>
+        <option name="mapping.map.scrollZoom">false</option>
+        <option name="mapping.map.zoom">6</option>
+        <option name="mapping.markerLayer.markerMaxSize">50</option>
+        <option name="mapping.markerLayer.markerMinSize">10</option>
+        <option name="mapping.markerLayer.markerOpacity">0.8</option>
+        <option name="mapping.showTiles">1</option>
+        <option name="mapping.tileLayer.maxZoom">7</option>
+        <option name="mapping.tileLayer.minZoom">0</option>
+        <option name="mapping.tileLayer.tileOpacity">1</option>
+        <option name="mapping.type">choropleth</option>
+        <option name="drilldown">all</option>
+      </map>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search base="base">
+          <query>search _time&gt;=$timechart.earliest|s$ AND _time&lt;=$timechart.latest|s$ AND $age_group_string$ AND $gender_string$ AND $race_string$ AND $county_string$ | `arrests_rename`</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>

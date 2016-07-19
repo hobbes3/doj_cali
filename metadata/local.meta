@@ -43,9 +43,18 @@ version = 6.4.1
 modtime = 1468429386.139130000
 
 [nav/default]
+access = read : [ * ], write : [ admin, power ]
+export = none
+owner = nobody
 version = 6.4.1
-modtime = 1468961754.127712000
+modtime = 1468967526.822153000
 
 [app/package/check_for_updates]
 version = 6.4.1
 modtime = 1468960749.989193000
+
+[views/doj_arrests]
+export = none
+owner = admin
+version = 6.4.1
+modtime = 1468967509.962817000
