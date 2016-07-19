@@ -1,39 +1,21 @@
 [app/ui]
 version = 6.4.1
-modtime = 1468267230.633251000
+modtime = 1468960749.983602000
 
 [app/launcher]
 version = 6.4.1
-modtime = 1468267230.637946000
+modtime = 1468960749.987603000
 
 [indexes/doj]
 owner = admin
 version = 6.4.1
 modtime = 1468268924.272233000
 
-[datamodels/doj_arrests]
-export = none
-owner = admin
-version = 6.4.1
-modtime = 1468356467.206753000
-
-[models/doj_arrests]
-export = none
-owner = admin
-version = 6.4.1
-modtime = 1468356461.619620000
-
 [macros/arrests_rename]
 export = none
 owner = admin
 version = 6.4.1
 modtime = 1468367297.960091000
-
-[savedsearches/doj_arrests_tstats]
-export = none
-owner = admin
-version = 6.4.1
-modtime = 1468453367.510796000
 
 [lookups/arrests.csv]
 export = none
@@ -60,8 +42,10 @@ owner = nobody
 version = 6.4.1
 modtime = 1468429386.139130000
 
-[savedsearches/doj_arrests]
-export = none
-owner = admin
+[nav/default]
 version = 6.4.1
-modtime = 1468453391.869287000
+modtime = 1468961754.127712000
+
+[app/package/check_for_updates]
+version = 6.4.1
+modtime = 1468960749.989193000
